@@ -75,23 +75,23 @@ public class TowerAttack : MonoBehaviour // script for attacking, targeting, and
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("OnTriggerEnter");
+        //Debug.Log("OnTriggerEnter");
         EnemyAI enemy = other.GetComponent<EnemyAI>();
         if (enemy != null)
         {
             AddEnemyToRange(enemy);
-            Debug.Log("OnTriggerEnterAdd");
+            //Debug.Log("OnTriggerEnterAdd");
         }
     } // upon entering towers range, add enemies to target list
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        Debug.Log("OnTriggerExit");
+        //Debug.Log("OnTriggerExit");
         EnemyAI enemy = other.GetComponent<EnemyAI>();
         if (enemy != null)
         {
             RemoveEnemyFromRange(enemy);
-            Debug.Log("OnTriggerExitRemove");            
+            //Debug.Log("OnTriggerExitRemove");            
         }
 
         if (target == enemy)
@@ -117,7 +117,7 @@ public class TowerAttack : MonoBehaviour // script for attacking, targeting, and
     {
         if (enemiesInRange.Count == 0)
         {
-            Debug.Log("List is empty");
+            //Debug.Log("List is empty");
         }
         else
         {
@@ -138,7 +138,7 @@ public class TowerAttack : MonoBehaviour // script for attacking, targeting, and
         if (canShoot) // if it can attack, attack
         {
             canShoot = false; // put attack on cooldown
-            Debug.Log("Firing!");
+            //Debug.Log("Firing!");
 
             // create projectile, add damage collider script, update damage from towerStats
             GameObject _projectile = Instantiate(projectilePrefab, projectileTransform.position, Quaternion.identity) as GameObject;

@@ -12,7 +12,7 @@ public class WaveSpawner : MonoBehaviour
     private float countdownTimer = 5f;
     private bool isSpawning = true;
 
-    void Update()
+    private void Update()
     {
         if (isSpawning && currentWaveIndex < waves.Length)
         {
@@ -28,16 +28,19 @@ public class WaveSpawner : MonoBehaviour
     private IEnumerator SpawnWave()
     {
         Wave currentWave = waves[currentWaveIndex];
-        for (int i = 0; i < currentWave.enemyPrefabs.Length; i++)
+        foreach (Wave.EnemySpawnInfo enemySpawnInfo in currentWave.enemiesToSpawn)
         {
-            GameObject enemyPrefab = currentWave.enemyPrefabs[i];
-            GameObject enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
-            EnemyMove enemyMove = enemy.GetComponent<EnemyMove>();
-            if (enemyMove != null)
+            for (int i = 0; i < enemySpawnInfo.count; i++)
             {
-                enemyMove.waypointSystem = currentWave.waypointSystem;
+                GameObject enemyPrefab = enemySpawnInfo.enemyPrefab;
+                GameObject enemy = Instantiate(enemyPrefab, transform.position, Quaternion.identity);
+                EnemyMove enemyMove = enemy.GetComponent<EnemyMove>();
+                if (enemyMove != null)
+                {
+                    enemyMove.waypointSystem = currentWave.waypointSystem;
+                }
+                yield return new WaitForSeconds(1f / currentWave.spawnRate);
             }
-            yield return new WaitForSeconds(1f / currentWave.spawnRate);
         }
 
         currentWaveIndex++;

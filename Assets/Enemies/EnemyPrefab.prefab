@@ -77,9 +77,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 061e4b1839b88364aa03808dbc3a71f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  experienceWorth: 0
+  goldWorth: 5
   movementSpeed: 1
   damage: 0
-  bonusHealth: 5
 --- !u!114 &282915566402951198
 MonoBehaviour:
   m_ObjectHideFlags: 0

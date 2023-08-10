@@ -1,6 +1,7 @@
 using UnityEngine.Tilemaps;
 using UnityEngine;
 using Unity.VisualScripting;
+using System.Runtime.CompilerServices;
 
 public class TowerPlacementButton : MonoBehaviour // when pressing a menu button during gameplay, makes a preview of the tower and allows player to place onto "Buildable" tiles
 {
@@ -12,13 +13,21 @@ public class TowerPlacementButton : MonoBehaviour // when pressing a menu button
     private bool placingTower = false; // changes if your placing towers or not
     private Tilemap buildableTilemap; // tile variable for player to build on
     private Tilemap enemyPathTilemap; // tile variable for enemies to walk on / not walkable
-    private TowerAttack towerPreviewScript; // Reference to the TowerAttack script on the preview tower
+
+    private TowerStats towerStats;
+    private TowerAttack towerAttack; // Reference to the TowerAttack script on the preview tower
     private GameObject towerPreview; // prefab object when placing a tower before left clicking
+
+    private LevelResources levelResources;
 
     private void Start()
     {
         buildableTilemap = GameObject.Find("Buildable").GetComponent<Tilemap>();
         enemyPathTilemap = GameObject.Find("EnemyPath").GetComponent<Tilemap>();
+        levelResources = GameObject.Find("LevelManager").GetComponent<LevelResources>(); // need to change code below to check for gold
+        towerStats = towerPrefab.GetComponent<TowerStats>();
+
+        Debug.Log("Gold: " + levelResources.gold);
     }
 
     private void Update()
@@ -43,19 +52,38 @@ public class TowerPlacementButton : MonoBehaviour // when pressing a menu button
         Vector3Int gridPosition = new Vector3Int(Mathf.FloorToInt(mousePosition.x), Mathf.FloorToInt(mousePosition.y), 0);
 
         if (buildableTilemap.HasTile(gridPosition))
+        {            
+            if (levelResources.gold >= towerStats.goldCost)
+            {
+                levelResources.gold -= towerStats.goldCost;
+                levelResources.UpdateGoldDisplay();
+
+                // Tower can be placed here since it's on the "Buildable" tilemap
+                GameObject newTower = Instantiate(towerPrefab, gridPosition + new Vector3(0.5f, 0.5f, 0), Quaternion.identity);
+                TowerAttack towerAttackScript = newTower.GetComponent<TowerAttack>();
+                TowerStats towerStatsScript = newTower.GetComponent<TowerStats>();
+
+                // Set the state of the new tower to "Active" and destroy the towerPreview
+                towerAttackScript.towerState = TowerState.Active;
+                towerStatsScript.onClick = true;
+                Destroy(towerPreview);
+
+                // Nullify the references to the tower preview
+                towerPreview = null;
+                towerAttack = null;
+                CancelTowerPlacement(); // this may just be double code for the same shit
+
+                Debug.Log(levelResources.gold);
+            }
+            else
+            {
+                Debug.Log("Not enough gold!");
+            }
+
+        }
+        else
         {
-            // Tower can be placed here since it's on the "Buildable" tilemap
-            GameObject newTower = Instantiate(towerPrefab, gridPosition + new Vector3(0.5f, 0.5f, 0), Quaternion.identity);
-            TowerAttack towerAttackScript = newTower.GetComponent<TowerAttack>();
-
-            // Set the state of the new tower to "Active" and destroy the towerPreview
-            towerAttackScript.towerState = TowerState.Active;
-            Destroy(towerPreview);
-
-            // Nullify the references to the tower preview
-            towerPreview = null;
-            towerPreviewScript = null;
-            CancelTowerPlacement(); // this may just be double code for the same shit
+            Debug.Log("Invalid location to build!");
         }
     }
 
@@ -85,8 +113,8 @@ public class TowerPlacementButton : MonoBehaviour // when pressing a menu button
 
             placingTower = true; // start building
             towerPreview = Instantiate(towerPrefab, Vector3.zero, Quaternion.identity); // towerPrefab is the preview
-            towerPreviewScript = towerPreview.GetComponent<TowerAttack>(); // Get the TowerAttack script from the preview tower
-            towerPreviewScript.towerState = TowerState.Preview; // Set the state of the preview tower to "Preview"
+            towerAttack = towerPreview.GetComponent<TowerAttack>(); // Get the TowerAttack script from the preview tower
+            towerAttack.towerState = TowerState.Preview; // Set the state of the preview tower to "Preview"
             towerPreview.GetComponent<SpriteRenderer>().color = validColor; // Set the initial color to green
             towerPreview.gameObject.SetActive(true);
         }
@@ -103,7 +131,7 @@ public class TowerPlacementButton : MonoBehaviour // when pressing a menu button
         {
             Destroy(towerPreview);
             towerPreview = null;
-            towerPreviewScript = null;
+            towerAttack = null;
         }
     }
 }

@@ -8,6 +8,8 @@ public class EnemyHealth : MonoBehaviour // script to control health on enemies 
     [SerializeField] private EnemyStats enemyStats; // grabs enemy stats on object
     [SerializeField] private Image healthBar; // reference to which health bar to update
 
+    public LevelResources levelResources;
+
     public float maxHealth;
     public float currentHealth;
 
@@ -15,9 +17,9 @@ public class EnemyHealth : MonoBehaviour // script to control health on enemies 
     void Start()
     {
         enemyStats = GetComponent<EnemyStats>();
+        levelResources = FindObjectOfType<LevelResources>(); // Find the LevelResources script in the scene
 
-        maxHealth = maxHealth + enemyStats.bonusHealth; // on spawn, update max health and current health based on baseStats and enemyStats
-        currentHealth = currentHealth + enemyStats.bonusHealth;
+        currentHealth = maxHealth;
     }
 
     private void Update()
@@ -44,6 +46,7 @@ public class EnemyHealth : MonoBehaviour // script to control health on enemies 
 
     private void Die() // destroy object, will add FX/sound later
     {
+        levelResources.AddGold(enemyStats.goldWorth);
         Debug.Log("This monster died");
         Destroy(this.gameObject);
     }
